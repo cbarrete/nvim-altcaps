@@ -1,8 +1,11 @@
 local M = {}
 
+M.upper = true
+M.lower = false
+
 M.config = {
-    always_upper = { 'L' },
-    always_lower = { 'i' },
+    l = M.upper,
+    i = M.lower,
 }
 
 local not_whitespace_regex = vim.regex('\\S')
@@ -32,18 +35,16 @@ M.operatorfunc = function(motion)
             local utf_end = vim.str_utf_end(line, idx)
 
             local char = line:sub(idx + utf_start, idx + utf_end)
-            local lower_char = vim.fn.tolower(char)
-            local upper_char = vim.fn.toupper(char)
-
             if not_whitespace_regex:match_str(char) then
-                if vim.tbl_contains(M.config.always_upper, upper_char) then
-                    char = upper_char
-                    capitalize = false
-                elseif vim.tbl_contains(M.config.always_lower, lower_char) then
-                    char = lower_char
-                    capitalize = true
-                elseif capitalize then
-                    char = upper_char
+                local lower_char = vim.fn.tolower(char)
+
+                local forced = M.config[lower_char]
+                if forced ~= nil then
+                    capitalize = forced
+                end
+
+                if capitalize then
+                    char = vim.fn.toupper(char)
                     capitalize = false
                 else
                     char = lower_char
@@ -67,6 +68,14 @@ end
 M.operator = function()
     vim.o.operatorfunc = "v:lua.require'altcaps'.operatorfunc"
     return 'g@'
+end
+
+M.setup = function(config)
+    if config then
+        for k, v in pairs(config) do
+            M.config[vim.fn.tolower(k)] = v
+        end
+    end
 end
 
 return M

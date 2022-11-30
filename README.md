@@ -30,16 +30,18 @@ vim.keymap.set({'n', 'v'}, '<Leader>a', require('altcaps').operator, { expr = tr
 ## Configuration
 
 `nvim-altcaps` supports forcing some letters to always be uppercased or
-lowercased by populating the `config.always_upper` and `config.always_lower`
-tables.
+lowercased by calling the (otherwise not required) `setup` function.
 
 For example, using the following configuration:
 
 ```lua
-require('altcaps').config = {
-    always_upper = { 'L', 'R' },
-    always_lower = { 'i', 'î' },
-}
+local altcaps = require('altcaps')
+altcaps.setup({
+    l = altcaps.upper,
+    r = altcaps.upper,
+    i = altcaps.lower,
+    î = altcaps.lower,
+})
 ```
 
 `Îles où l'on ne prendra jamais terre` would be converted to `îLeS oÙ L'On Ne
